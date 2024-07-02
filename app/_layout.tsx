@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { SignIn } from "./signIn";
-import { Home } from "./home";
+import { SignInScreen } from "./signInScreen";
+import { CreateAccountScreen } from "./createAccountScreen";
+import { HomeScreen } from "./homeScreen";
 import { NavigationContainer } from "@react-navigation/native";
 
 const Stack = createNativeStackNavigator();
@@ -11,14 +12,21 @@ export default function RootLayout() {
       <Stack.Navigator initialRouteName="SignIn">
         <Stack.Screen
           name="SignIn"
-          component={SignIn}
+          component={SignInScreen}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name="CreateAccount"
+          component={CreateAccountScreen}
           options={{
             headerShown: false
           }}
         />
         <Stack.Screen
           name="Home"
-          component={Home}
+          component={HomeScreen}
           options={{
             headerShown: false
           }}
