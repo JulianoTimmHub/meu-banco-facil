@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "my-bank",
-    "slug": "my-bank",
+    "name": "meu-banco-facil",
+    "slug": "meu-banco-facil",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
