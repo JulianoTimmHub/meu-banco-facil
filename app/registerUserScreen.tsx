@@ -7,32 +7,28 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Ionicons } from "@expo/vector-icons";
-import { useAuthContext } from '../src/hooks/contexts/useAuthContext.hook';
+import { useUserContext } from '../src/hooks/contexts/useUserContext.hook';
 import { SnackbarMessage } from "@/components/snackbar/snackbarMessage";
 import { Loading } from "@/components/loading/loading";
-import { useUserContext } from "@/src/hooks/contexts/useUserContext.hook";
 
-export const SignInScreen = ({ navigation }: any) => {
+export const RegisterUserScreen = ({ navigation }: any) => {
   const [showPassword, setShowPassword] = useState<boolean>(true);
 
   const {
-    signIn,
-    signInResults: {
+    registerUser,
+    registerResults: {
       isLoading,
-      statusSignIn
+      statusRegister
     },
-    resetAuthStatus
-  } = useAuthContext();
-
-  const {
     resetUserStatus
   } = useUserContext();
 
   const schema = yup.object({
+    username: yup.string().required("Informe seu nome"),
     email: yup.string().required("Informe seu e-mail"),
     password: yup.string().required("Informe sua senha")
   });
@@ -40,31 +36,40 @@ export const SignInScreen = ({ navigation }: any) => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
-    reset
+    reset,
+    formState: { errors }
   } = useForm({
     resolver: yupResolver(schema)
   });
 
-  const openRegisterUserScreen = () => {
-    resetUserStatus();
-    navigation.navigate("RegisterUser")
-  }
-
   useEffect(() => {
-    if (!isLoading && statusSignIn.color === 'success') {
+    if (statusRegister.color === 'success')
       reset();
-      navigation.navigate("BottomTabNavigator");
-    }
-  }, [isLoading, statusSignIn, navigation, reset]);
+  }, [statusRegister, reset])
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={[styles.containerView, isLoading && styles.containerLoading]}>
-        <View style={styles.welcome}>
-          <Text style={styles.welcomeMessage}>Bem vindo ao login</Text>
+        <View style={styles.RegisterUserTitleContainer}>
+          <Text style={styles.RegisterUserTitle}>Registre sua conta</Text>
         </View>
         <View style={styles.form}>
+          <View style={styles.inputArea}>
+            <Controller
+              control={control}
+              name="username"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={errors.username?.message ? styles.inputError : styles.input}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  placeholder="Usuário"
+                />
+              )}
+            />
+            {errors.username && <Text style={styles.inputMessageError}>{errors.username?.message}</Text>}
+          </View>
           <View style={styles.inputArea}>
             <Controller
               control={control}
@@ -111,38 +116,27 @@ export const SignInScreen = ({ navigation }: any) => {
             />
             {errors.password && <Text style={styles.inputMessageError}>{errors.password?.message}</Text>}
           </View>
-          <View style={styles.buttonsCotainer}>
-            <TouchableOpacity
-              style={styles.buttonSignIn}
-              onPress={handleSubmit(signIn)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.signInMessage}>Acessar</Text>
-            </TouchableOpacity>
-            <View>
-              <Text> Ou </Text>
-            </View>
-            <TouchableOpacity
-              style={styles.buttonRegisterUser}
-              onPress={() => openRegisterUserScreen()}
-              activeOpacity={0.5}
-            >
-              <Text style={styles.RegisterUserMessage}>Criar conta</Text>
-            </TouchableOpacity>
-          </View>
+
+          <TouchableOpacity
+            onPress={handleSubmit(registerUser)}
+            activeOpacity={0.8}
+            style={styles.buttonRegisterUser}
+          >
+            <Text style={styles.RegisterUserMessage}>Registrar</Text>
+          </TouchableOpacity>
         </View>
       </View>
-      {!isLoading && statusSignIn.color !== "success" && (
+      {!isLoading && statusRegister && (
         <SnackbarMessage
-          status={statusSignIn}
-          resetStatus={resetAuthStatus}
+          status={statusRegister}
+          resetStatus={resetUserStatus}
         />
       )}
       {isLoading && (
         <Loading />
       )}
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -160,28 +154,28 @@ const styles = StyleSheet.create({
   containerLoading: {
     opacity: 0.2
   },
-  welcome: {
+  RegisterUserTitleContainer: {
     height: "30%",
-    width: "100%",
-    backgroundColor: "#0d6efd",
-    borderBottomRightRadius: 30,
-    borderBottomLeftRadius: 30,
+    width: '100%',
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#0d6efd",
+    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 30,
   },
-  welcomeMessage: {
+  RegisterUserTitle: {
     fontWeight: "500",
-    color: "#fff",
-    fontSize: 20
+    fontSize: 20,
+    color: "#fff"
   },
   form: {
-    height: "70%",
-    width: "100%",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     gap: 15,
+    height: '70%',
+    width: '100%'
   },
   inputArea: {
     width: "80%"
@@ -193,7 +187,8 @@ const styles = StyleSheet.create({
     borderColor: "#bbbbbb",
     borderStyle: "solid",
     borderWidth: 1,
-    fontSize: 15
+    fontSize: 15,
+    width: "100%"
   },
   viewPassword: {
     padding: 15,
@@ -217,6 +212,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
+  inputError: {
+    padding: 15,
+    borderRadius: 10,
+    borderColor: "#ff0000",
+    backgroundColor: "#fff",
+    borderStyle: "solid",
+    borderWidth: 1,
+    fontSize: 15,
+    width: "100%"
+  },
   viewPasswordError: {
     padding: 15,
     borderRadius: 10,
@@ -229,49 +234,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center"
   },
-  inputError: {
-    padding: 15,
-    borderRadius: 10,
-    borderColor: "#ff0000",
-    backgroundColor: "#fff",
-    borderStyle: "solid",
-    borderWidth: 1,
-    fontSize: 15
-  },
   inputMessageError: {
-    color: "#ff0000",
+    color: "#ff0000"
   },
-  buttonsCotainer: {
-    width: '100%',
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10
-  },
-  buttonSignIn: {
+  buttonRegisterUser: {
     width: "80%",
     padding: 15,
     borderRadius: 10,
     backgroundColor: "#0d6efd",
     alignItems: "center"
   },
-  signInMessage: {
+  RegisterUserMessage: {
     color: "#fff",
     fontSize: 15,
     fontWeight: "600"
   },
-  buttonRegisterUser: {
-    width: "80%",
-    padding: 15,
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    borderColor: "#0d6efd",
-    borderWidth: 2,
-    alignItems: "center"
-  },
-  RegisterUserMessage: {
-    color: "#0d6efd",
-    fontSize: 15,
-    fontWeight: "600"
-  }
-})
+});

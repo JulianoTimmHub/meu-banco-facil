@@ -1,27 +1,42 @@
 import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
+import { useAuthContext } from "@/src/hooks/contexts/useAuthContext.hook";
+
+import styled from "styled-components/native";
 
 export const Header = () => {
-  const [user, setUser] = useState("Juliano");
+  const { user } = useAuthContext();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.userName}>Olá, {user}</Text>
-      <TouchableOpacity activeOpacity={0.9} style={styles.userIcon}>
+    // <View style={styles.container}>
+    <HeaderView>
+      <Text style={styles.userName}>Olá, {user?.username}</Text>
+      <TouchableOpacity activeOpacity={0.5} style={styles.userIcon}>
         <Feather name="user" size={27} color="#fff" />
       </TouchableOpacity>
-    </View>
+    </HeaderView>
   )
 }
+
+const HeaderView = styled.View`
+  background-color: ${props => props.theme.background};
+  min-height: 40%;
+  padding-top: 40px;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 30px;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+`;
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#0d6efd',
     minHeight: '40%',
-    paddingTop: 50,
-    borderBottomRightRadius: 20,
-    borderBottomLeftRadius: 20,
+    paddingTop: 40,
+    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 30,
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between'
